@@ -2,6 +2,7 @@ import mesa
 import enum
 import matplotlib.pyplot as plt
 import pandas as pd
+from pathlib import Path
 
 # ---------------------------------------------------------
 # 1. State Definition
@@ -155,6 +156,9 @@ if __name__ == "__main__":
 
     # Termination & Plotting Phase
     df = model.datacollector.get_model_vars_dataframe()
+    results_dir = Path("results")
+    results_dir.mkdir(parents=True, exist_ok=True)
+    df.to_csv(results_dir / "seir_timeseries.csv", index=False)
     
     # Plotting standard epidemiological curve
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -166,4 +170,5 @@ if __name__ == "__main__":
     ax.grid(True, linestyle='--', alpha=0.7)
     
     plt.tight_layout()
+    plt.savefig(results_dir / "seir_curve.png", dpi=150)
     plt.show()

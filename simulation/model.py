@@ -3,7 +3,7 @@ FluModel: The top-level Mesa simulation model.
 
 Responsibility: Initialise the agent population from a pre-processed
 DataFrame and delegate network construction to TopologyBuilder.
-All epidemiological logic belongs to Phase 2.
+All epidemiological logic will be implemented later and is intentionally absent for now.
 """
 
 from __future__ import annotations

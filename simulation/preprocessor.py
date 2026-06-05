@@ -21,7 +21,7 @@ class DataPreprocessor:
     The dataset is too large to load fully into memory, so this class
     performs cluster sampling: it selects a random subset of Household IDs
     and Group-Quarter (GQ) IDs, then extracts every person belonging to
-    those clusters.  Household and GQ structures are kept intact — no
+    those clusters.  Household and GQ structures are kept intact - no
     household is partially represented in the output.
     """
 

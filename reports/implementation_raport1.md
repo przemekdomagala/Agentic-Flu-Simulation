@@ -1,4 +1,4 @@
-# Report — Infrastructure & Topology  
+# Report - Infrastructure & Topology  
 **Date:** 2026-06-05  
 
 ---
@@ -19,7 +19,7 @@ This part establishes the core infrastructure required to run the simulation: a 
 | `simulation/agents.py` | `FluAgent`, `HealthState` | Represents a single individual; holds demographic attributes and initial health state |
 | `simulation/model.py` | `FluModel` | Top-level Mesa model; spawns agents from a DataFrame and delegates graph construction |
 | `simulation/topology.py` | `TopologyBuilder` | Builds the four social sub-graphs (`G_home`, `G_gq`, `G_work`, `G_school`) using NetworkX |
-| `main.py` | — | Entry-point script; runs the full pipeline and prints a diagnostic summary |
+| `main.py` | - | Entry-point script; runs the full pipeline and prints a diagnostic summary |
 
 ### 2.2 Test Suite
 
@@ -100,10 +100,10 @@ Total individuals   : 1,083
 Sampling time       : 1.74 s
 Agent creation time : 0.09 s
 
-G_home   — nodes: 1,083  edges:     522
-G_gq     — nodes: 1,083  edges:  34,480
-G_work   — nodes: 1,083  edges:      43
-G_school — nodes: 1,083  edges:     105
+G_home   - nodes: 1,083  edges:     522
+G_gq     - nodes: 1,083  edges:  34,480
+G_work   - nodes: 1,083  edges:      43
+G_school - nodes: 1,083  edges:     105
 ```
 
 The high edge count in `G_gq` reflects the dense nature of group-quarter clusters (nursing homes, dormitories), consistent with the design documentation's maximum transmission multiplier of 3.5 assigned to that layer.
@@ -123,7 +123,7 @@ The high edge count in `G_gq` reflects the dense nature of group-quarter cluster
 
 For the next milestone, we'll implement:
 
-1. **SEIR state machine** — stochastic transitions driven by Gaussian-distributed phase durations ($D_E \sim \mathcal{N}(48, 12)$ h, $D_I \sim \mathcal{N}(168, 24)$ h).
-2. **Transmission engine** — per-tick exposure checks on active sub-graph edges using $P(\text{inf}) = \beta \times M_{\text{location}}$.
-3. **Hourly time-step loop** — time-filtered sub-graph activation/deactivation; symptom-driven absenteeism at 07:00.
-4. **Telemetry dashboard** — live SEIR epidemic curve and transmission-vector bar chart via Mesa's visualization modules.
+1. **SEIR state machine** - stochastic transitions driven by Gaussian-distributed phase durations ($D_E \sim \mathcal{N}(48, 12)$ h, $D_I \sim \mathcal{N}(168, 24)$ h).
+2. **Transmission engine** - per-tick exposure checks on active sub-graph edges using $P(\text{inf}) = \beta \times M_{\text{location}}$.
+3. **Hourly time-step loop** - time-filtered sub-graph activation/deactivation; symptom-driven absenteeism at 07:00.
+4. **Telemetry dashboard** - live SEIR epidemic curve and transmission-vector bar chart via Mesa's visualization modules.

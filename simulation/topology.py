@@ -6,10 +6,10 @@ NetworkX graphs that encode structural proximity.  Time-filtering logic
 (activating/deactivating sub-graphs by hour of day) will be implemented later and is intentionally absent for now.
 
 Sub-graphs:
-    G_home   — agents sharing the same Household ID (sp_hh_id)
-    G_gq     — agents sharing the same Group-Quarter ID (sp_gq_id)
-    G_work   — agents sharing the same Work ID (work_id)
-    G_school — agents sharing the same School ID (school_id)
+    G_home   - agents sharing the same Household ID (sp_hh_id)
+    G_gq     - agents sharing the same Group-Quarter ID (sp_gq_id)
+    G_work   - agents sharing the same Work ID (work_id)
+    G_school - agents sharing the same School ID (school_id)
 
 Each node in every graph is the agent's Mesa unique_id (integer).
 Each node also stores a reference to the agent object for convenience.

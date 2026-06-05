@@ -18,12 +18,12 @@ def print_section(title: str) -> None:
 def main() -> None:
 
     print("=" * 60)
-    print("  Agentic Flu Simulation — Infrastructure")
+    print("  Agentic Flu Simulation - Infrastructure")
     print("=" * 60)
     print(f"  Dataset : {DATASET_DIR}")
 
     # ── Step 1: Preprocess ─────────────────────────────────────────
-    print_section("Step 1 — Cluster Sampling (DataPreprocessor)")
+    print_section("Step 1 - Cluster Sampling (DataPreprocessor)")
     t0 = time.perf_counter()
     preprocessor = DataPreprocessor(DATASET_DIR)
     population = preprocessor.sample(
@@ -46,7 +46,7 @@ def main() -> None:
     print(f"  └─ Students         : {students:,}")
 
     # ── Step 2: Build agents & model ───────────────────────────────
-    print_section("Step 2 — Agent Instantiation (FluModel)")
+    print_section("Step 2 - Agent Instantiation (FluModel)")
     t0 = time.perf_counter()
     model = FluModel(population=population, seed=42)
     elapsed = time.perf_counter() - t0
@@ -59,7 +59,7 @@ def main() -> None:
     print(f"  All in SUSCEPTIBLE state : {susceptible == len(all_agents)}")
 
     # ── Step 3: Network topology ────────────────────────────────────
-    print_section("Step 3 — Network Topology (TopologyBuilder)")
+    print_section("Step 3 - Network Topology (TopologyBuilder)")
     topology = model.topology
 
     graphs = {

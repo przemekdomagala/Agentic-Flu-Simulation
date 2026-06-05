@@ -46,7 +46,7 @@ def test_every_person_has_household_or_gq_id(sampled: pd.DataFrame) -> None:
     has_hh = sampled["sp_hh_id"].notna()
     has_gq = sampled["sp_gq_id"].notna()
     assert (has_hh | has_gq).all(), (
-        "Some rows have neither sp_hh_id nor sp_gq_id — orphan records detected."
+        "Some rows have neither sp_hh_id nor sp_gq_id - orphan records detected."
     )
 
 

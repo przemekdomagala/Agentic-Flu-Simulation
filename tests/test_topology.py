@@ -48,7 +48,7 @@ def agent_by_sp_id(model: FluModel, sp_id: str):
 # Two schools:    SCH_1 (agents 1, 3), SCH_2 (agents 6)
 # Two workplaces: WK_X (agents 2, 4), WK_Y (agents 5)
 # One GQ:         GQ_Z (agents 7, 8)
-# Agent 9: no household, no gq, no school, no work — fully isolated
+# Agent 9: no household, no gq, no school, no work - fully isolated
 #
 ROWS = [
     {"sp_id": "1", "age": "12", "sex": "F", "sp_hh_id": "HH_A", "school_id": "SCH_1", "work_id": None,  "sp_gq_id": None},

@@ -2,8 +2,8 @@
 FluAgent: A single person in the flu simulation.
 
 Responsibility: Store demographic attributes and health state for one
-individual.  All epidemic logic (state transitions, transmission) belongs
-to Phase 2 and is intentionally absent here.
+individual.  All epidemic logic (state transitions, transmission) will be implemented later
+ and is intentionally absent for now.
 """
 
 from __future__ import annotations

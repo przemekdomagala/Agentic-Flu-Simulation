@@ -1,14 +1,3 @@
-"""
-Phase 1 runner — demonstrates the full initialization pipeline.
-
-Usage:
-    python run_phase1.py [--households N] [--gq N] [--seed N]
-
-This script does NOT run the epidemic simulation (that is Phase 2).
-It shows that the population is correctly sampled, agents are created,
-and all four network sub-graphs are built with proper topology.
-"""
-
 import argparse
 import time
 from pathlib import Path
@@ -20,17 +9,6 @@ from simulation.model import FluModel
 DATASET_DIR = Path(__file__).parent / "dataset"
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Agentic Flu Simulation — Phase 1 initializer")
-    parser.add_argument("--households", type=int, default=200,
-                        help="Number of household clusters to sample (default: 200)")
-    parser.add_argument("--gq", type=int, default=10,
-                        help="Number of group-quarter clusters to sample (default: 10)")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed for reproducibility (default: 42)")
-    return parser.parse_args()
-
-
 def print_section(title: str) -> None:
     print(f"\n{'─' * 60}")
     print(f"  {title}")
@@ -38,24 +16,20 @@ def print_section(title: str) -> None:
 
 
 def main() -> None:
-    args = parse_args()
 
     print("=" * 60)
-    print("  Agentic Flu Simulation — Phase 1: Infrastructure")
+    print("  Agentic Flu Simulation — Infrastructure")
     print("=" * 60)
     print(f"  Dataset : {DATASET_DIR}")
-    print(f"  Households to sample : {args.households}")
-    print(f"  Group Quarters to sample : {args.gq}")
-    print(f"  Random seed : {args.seed}")
 
     # ── Step 1: Preprocess ─────────────────────────────────────────
     print_section("Step 1 — Cluster Sampling (DataPreprocessor)")
     t0 = time.perf_counter()
     preprocessor = DataPreprocessor(DATASET_DIR)
     population = preprocessor.sample(
-        n_households=args.households,
-        n_gq=args.gq,
-        random_seed=args.seed,
+        n_households=200,
+        n_gq=10,
+        random_seed=42,
     )
     elapsed = time.perf_counter() - t0
 
@@ -74,7 +48,7 @@ def main() -> None:
     # ── Step 2: Build agents & model ───────────────────────────────
     print_section("Step 2 — Agent Instantiation (FluModel)")
     t0 = time.perf_counter()
-    model = FluModel(population=population, seed=args.seed)
+    model = FluModel(population=population, seed=42)
     elapsed = time.perf_counter() - t0
 
     all_agents = list(model.agents)
@@ -103,13 +77,10 @@ def main() -> None:
         print(f"    nodes={nodes:,}  edges={edges:,}  isolated (no group)={isolated:,}")
 
     # ── Summary ────────────────────────────────────────────────────
-    print_section("Milestone 1 — Status")
+    print_section("Status")
     print("  Population sampled     : OK")
     print("  Agents initialised     : OK")
     print("  Network topology built : OK")
-    print()
-    print("  Phase 1 complete. Ready for professor review.")
-    print("  Phase 2 will add the SEIR epidemic engine and time-stepped simulation.")
     print()
 
 

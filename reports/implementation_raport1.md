@@ -75,7 +75,7 @@ The output schema is:
 
 Four undirected NetworkX graphs are built eagerly at model initialisation:
 
-| Sub-graph | Clustering attribute | Activation window (Phase 2) |
+| Sub-graph | Clustering attribute | Activation window (Next Milestone) |
 | :--- | :--- | :--- |
 | `G_home` | `sp_hh_id` | 00:00–08:00 and 16:00–24:00 |
 | `G_gq` | `sp_gq_id` | 00:00–24:00 (always active) |

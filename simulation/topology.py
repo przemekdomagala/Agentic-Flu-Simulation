@@ -3,7 +3,7 @@ TopologyBuilder: Constructs the multi-layer NetworkX sub-graphs.
 
 Responsibility: Given a list of FluAgent instances, build four distinct
 NetworkX graphs that encode structural proximity.  Time-filtering logic
-(activating/deactivating sub-graphs by hour of day) belongs to Phase 2.
+(activating/deactivating sub-graphs by hour of day) will be implemented later and is intentionally absent for now.
 
 Sub-graphs:
     G_home   — agents sharing the same Household ID (sp_hh_id)

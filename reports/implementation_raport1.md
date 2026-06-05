@@ -88,7 +88,7 @@ Each graph contains all agents as nodes (so degree queries are always valid). Ed
 
 ## 4. Runtime Results
 
-Sample run with `--households 200 --gq 10 --seed 42`:
+Sample run:
 
 ```
 Total individuals   : 1,083

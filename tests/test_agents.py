@@ -62,7 +62,7 @@ STUDENT_ROW = {
 @pytest.fixture()
 def small_model() -> FluModel:
     population = make_population(HOUSEHOLD_ROW, GQ_ROW, STUDENT_ROW)
-    return FluModel(population=population, seed=0)
+    return FluModel(population=population, seed=0, initial_infected=0)
 
 
 # ------------------------------------------------------------------

@@ -1,9 +1,13 @@
 """
-FluModel: The top-level Mesa simulation model.
+FluModel: Top-level Mesa simulation model.
 
-Responsibility: Initialise the agent population from a pre-processed
-DataFrame and delegate network construction to TopologyBuilder.
-All epidemiological logic will be implemented later and is intentionally absent for now.
+Responsibility: Orchestrate the simulation clock, behavioural routing,
+transmission mechanics, agent lifecycle management, and telemetry collection.
+
+Epidemiological state transitions live in FluAgent.
+Transmission probability helpers live in transmission.py.
+Graph construction lives in TopologyBuilder.
+This class owns the glue between all three (Open/Closed Principle).
 """
 
 from __future__ import annotations
@@ -11,35 +15,82 @@ from __future__ import annotations
 import pandas as pd
 import mesa
 
-from simulation.agents import FluAgent
+from simulation.agents import FluAgent, HealthState
 from simulation.topology import TopologyBuilder
+from simulation.transmission import exposure_occurred
+
+# ── Model-level constants ─────────────────────────────────────────────────────
+
+_BETA: float              = 0.04   # baseline transmissibility (calibrated for R₀ ≈ 1.3–1.8)
+_INITIAL_INFECTED: int    = 5
+_ABSENTEEISM_HOUR: int    = 7      # 07:00 compliance check
+_ABSENTEEISM_RATE: float  = 0.70   # 70 % of symptomatic agents quarantine
+_COMMUNITY_HOUR:   int    = 16     # G_community rebuilt each evening
 
 
 class FluModel(mesa.Model):
-    """Mesa model that initialises the flu simulation population.
+    """Mesa model that drives the Philadelphia flu epidemic simulation.
 
-    It expects a simulation-ready DataFrame produced by DataPreprocessor.
-    Graph construction is delegated to TopologyBuilder so that this class
-    remains focused on agent lifecycle management (Single Responsibility).
+    Each call to ``step()`` advances the clock by one hour and performs:
+      1. Absenteeism check at 07:00
+      2. Community graph rebuild at 16:00
+      3. Transmission across all active network edges
+      4. Agent SEIR state progression
+      5. Telemetry collection
 
     Attributes:
-        agents: All FluAgent instances (provided by Mesa internals).
-        topology: A TopologyBuilder instance holding the four sub-graphs.
+        tick:          Current simulation tick (0-based; 1 tick = 1 hour).
+        topology:      TopologyBuilder holding all five sub-graphs.
+        datacollector: Mesa DataCollector for SEIR and hotspot telemetry.
+        beta:          Baseline transmissibility constant.
     """
 
     def __init__(
         self,
         population: pd.DataFrame,
         seed: int | None = None,
+        beta: float = _BETA,
+        initial_infected: int = _INITIAL_INFECTED,
     ) -> None:
         super().__init__(seed=seed)
 
+        self.beta: float = beta
+        self.tick: int   = 0
+
+        # Per-tick infection source tallies (reset at the top of each step)
+        self._infection_counts: dict[str, int] = {
+            loc: 0 for loc in ("home", "gq", "work", "school", "community")
+        }
+
         self._spawn_agents(population)
         self.topology = TopologyBuilder(list(self.agents))
+        self._seed_infections(initial_infected)
+        self._setup_datacollector()
 
-    # ------------------------------------------------------------------
-    # Private helpers
-    # ------------------------------------------------------------------
+        # Collect initial state so the dashboard shows tick-0 data immediately
+        self.datacollector.collect(self)
+
+    # ── Mesa interface ────────────────────────────────────────────────────────
+
+    def step(self) -> None:
+        """Advance the simulation by one hour (one tick)."""
+        hour = self.tick % 24
+
+        self._reset_infection_counts()
+
+        if hour == _ABSENTEEISM_HOUR:
+            self._apply_absenteeism()
+
+        if hour == _COMMUNITY_HOUR:
+            self.topology.rebuild_community_graph(list(self.agents), self.random)
+
+        self._run_transmission(hour)
+        self.agents.do("step")
+        self.datacollector.collect(self)
+
+        self.tick += 1
+
+    # ── Private: initialisation ───────────────────────────────────────────────
 
     def _spawn_agents(self, population: pd.DataFrame) -> None:
         """Create one FluAgent per row in the population DataFrame."""
@@ -55,6 +106,116 @@ class FluModel(mesa.Model):
                 sp_gq_id=self._nullable_str(row.sp_gq_id),
             )
 
+    def _seed_infections(self, n: int) -> None:
+        """Expose *n* randomly chosen agents to start the outbreak."""
+        all_agents = list(self.agents)
+        seeds = self.random.sample(all_agents, min(n, len(all_agents)))
+        for agent in seeds:
+            agent.expose()
+
+    def _setup_datacollector(self) -> None:
+        """Configure Mesa DataCollector for SEIR counts and hotspot tallies.
+
+        SEIR reporters are decoupled from transmission logic via lambdas;
+        hotspot reporters read the per-tick ``_infection_counts`` dict that
+        is reset at the start of each step.
+        """
+        self.datacollector = mesa.DataCollector(
+            model_reporters={
+                "Count_S": lambda m: _count_state(m, HealthState.SUSCEPTIBLE),
+                "Count_E": lambda m: _count_state(m, HealthState.EXPOSED),
+                "Count_I": lambda m: _count_state(m, HealthState.INFECTIOUS),
+                "Count_R": lambda m: _count_state(m, HealthState.RECOVERED),
+                "Infections_Home":      lambda m: m._infection_counts["home"],
+                "Infections_GQ":        lambda m: m._infection_counts["gq"],
+                "Infections_Work":      lambda m: m._infection_counts["work"],
+                "Infections_School":    lambda m: m._infection_counts["school"],
+                "Infections_Community": lambda m: m._infection_counts["community"],
+            }
+        )
+
+    # ── Private: clock logic ──────────────────────────────────────────────────
+
+    def _reset_infection_counts(self) -> None:
+        for key in self._infection_counts:
+            self._infection_counts[key] = 0
+
+    def _apply_absenteeism(self) -> None:
+        """At 07:00, flag symptomatic Infectious agents for quarantine.
+
+        70 % of symptomatic agents suspend G_work / G_school routing and
+        stay locked to G_home for the day.  Asymptomatic agents are never
+        flagged (they do not know they are infectious).
+        """
+        for agent in self.agents:
+            if (
+                agent.health_state is HealthState.INFECTIOUS
+                and not agent.is_asymptomatic
+                and self.random.random() < _ABSENTEEISM_RATE
+            ):
+                agent.is_quarantined = True
+
+    def _run_transmission(self, hour: int) -> None:
+        """Attempt transmission on every active edge for the current hour."""
+        for graph, location in self.topology.active_base_graphs(hour):
+            for uid_a, uid_b in graph.edges():
+                agent_a: FluAgent = graph.nodes[uid_a]["agent"]
+                agent_b: FluAgent = graph.nodes[uid_b]["agent"]
+
+                if not self._edge_is_active(agent_a, agent_b, location, hour):
+                    continue
+
+                self._attempt_edge_transmission(agent_a, agent_b, location)
+
+    def _edge_is_active(
+        self,
+        agent_a: FluAgent,
+        agent_b: FluAgent,
+        location: str,
+        hour: int,
+    ) -> bool:
+        """Return False when this edge should be skipped for this tick.
+
+        Two rules:
+        1. During work/school hours (08:00–16:00), home edges are inactive for
+           agents who have work or school obligations (they are elsewhere).
+        2. Quarantined agents skip all non-home, non-GQ edges.
+        """
+        if location == "home" and 8 <= hour < 16:
+            if _is_mobile(agent_a) or _is_mobile(agent_b):
+                return False
+
+        if location not in ("home", "gq"):
+            if agent_a.is_quarantined or agent_b.is_quarantined:
+                return False
+
+        return True
+
+    def _attempt_edge_transmission(
+        self,
+        agent_a: FluAgent,
+        agent_b: FluAgent,
+        location: str,
+    ) -> None:
+        """Try to transmit infection along one undirected edge (both directions).
+
+        Transmission is checked in both directions so a single edge can
+        infect at most one new Susceptible per tick (the first direction that
+        succeeds does not prevent checking the other, but an already-exposed
+        agent's ``expose()`` call is a no-op).
+        """
+        for infectious, susceptible in ((agent_a, agent_b), (agent_b, agent_a)):
+            if (
+                infectious.health_state is HealthState.INFECTIOUS
+                and susceptible.health_state is HealthState.SUSCEPTIBLE
+            ):
+                rng_sample = self.random.random()
+                if exposure_occurred(self.beta, location, rng_sample):
+                    susceptible.expose()
+                    self._infection_counts[location] += 1
+
+    # ── Private: static helpers ───────────────────────────────────────────────
+
     @staticmethod
     def _parse_int(value: object) -> int:
         try:
@@ -68,3 +229,15 @@ class FluModel(mesa.Model):
             return None
         string_value = str(value)
         return None if string_value in ("None", "nan", "") else string_value
+
+
+# ── Module-level helpers (no access to self needed; easier to test) ───────────
+
+def _count_state(model: FluModel, state: HealthState) -> int:
+    """Count agents in a given HealthState."""
+    return sum(1 for a in model.agents if a.health_state is state)
+
+
+def _is_mobile(agent: FluAgent) -> bool:
+    """Return True if the agent has work or school obligations during day hours."""
+    return agent.work_id is not None or agent.school_id is not None

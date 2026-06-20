@@ -1,5 +1,5 @@
 """
-Headless batch runner for What-If policy experiments.
+Headless batch runner for What-If experiments.
 
 Runs four scenarios entirely bypassing the Solara UI and writes one CSV
 per scenario to the working directory.  Each CSV contains the full SEIR
@@ -64,16 +64,16 @@ if __name__ == "__main__":
     population = _load_population()
     print(f"Population loaded: {len(population):,} individuals")
 
-    # 0. BASELINE — standard parameters (70 % compliance, open schools)
+    # 0. BASELINE - standard parameters (70 % compliance, open schools)
     run_scenario("Baseline", population)
 
-    # 1. LOW COMPLIANCE — only 30 % stay home when sick (presenteeism)
+    # 1. LOW COMPLIANCE - only 30 % stay home when sick (presenteeism)
     run_scenario("Low_Compliance", population, compliance_rate=0.30)
 
-    # 2. SCHOOL CLOSURES — close schools once 2 % of population is infected
+    # 2. SCHOOL CLOSURES - close schools once 2 % of population is infected
     run_scenario("School_Closures", population, school_closure_threshold=0.02)
 
-    # 3. GQ LOCKDOWN — isolate nursing homes / dorms from community mixing
+    # 3. GQ LOCKDOWN - isolate nursing homes / dorms from community mixing
     run_scenario("GQ_Lockdown", population, gq_lockdown=True)
 
     print("\n" + "=" * 60)

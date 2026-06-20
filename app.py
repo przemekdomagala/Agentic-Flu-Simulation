@@ -1,5 +1,5 @@
 """
-Flu Simulation Dashboard — direct Solara page.
+Flu Simulation Dashboard - direct Solara page.
 
 Run with:
     .venv/bin/python3 -m solara run app.py
@@ -44,7 +44,7 @@ _HOTSPOT_COLORS = ["#E91E63",         "#9C27B0",           "#2196F3",
 
 @solara.component
 def SEIRChart(model: FluModel) -> None:
-    """Live SEIR epidemic curve — one line per health state."""
+    """Live SEIR epidemic curve - one line per health state."""
     update_counter.get()
 
     df = model.datacollector.get_model_vars_dataframe()
@@ -65,7 +65,7 @@ def SEIRChart(model: FluModel) -> None:
 
 @solara.component
 def HotspotChart(model: FluModel) -> None:
-    """Bar chart — infections per network layer from the last completed tick."""
+    """Bar chart - infections per network layer from the last completed tick."""
     update_counter.get()
 
     df = model.datacollector.get_model_vars_dataframe()
@@ -89,7 +89,7 @@ def HotspotChart(model: FluModel) -> None:
 
 @solara.component
 def StatusLine(model: FluModel) -> None:
-    """Tick / hour / day counter — refreshes on every model step."""
+    """Tick / hour / day counter - refreshes on every model step."""
     update_counter.get()
     hour = model.tick % 24
     day  = model.tick // 24 + 1

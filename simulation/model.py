@@ -6,8 +6,7 @@ transmission mechanics, agent lifecycle management, and telemetry collection.
 
 Epidemiological state transitions live in FluAgent.
 Transmission probability helpers live in transmission.py.
-Graph construction lives in TopologyBuilder.
-This class owns the glue between all three (Open/Closed Principle).
+Graph construction lives in TopologyBuilder.ss
 """
 
 from __future__ import annotations

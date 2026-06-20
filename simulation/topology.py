@@ -8,11 +8,11 @@ remain in FluModel to keep this class focused on graph construction only.
 
 Sub-graphs
 ──────────
-    G_home      — agents sharing the same household ID (sp_hh_id)
-    G_gq        — agents sharing the same group-quarter ID (sp_gq_id)
-    G_work      — agents sharing the same workplace ID (work_id)
-    G_school    — agents sharing the same school ID (school_id)
-    G_community — random sparse graph rebuilt each evening tick by FluModel
+    G_home      - agents sharing the same household ID (sp_hh_id)
+    G_gq        - agents sharing the same group-quarter ID (sp_gq_id)
+    G_work      - agents sharing the same workplace ID (work_id)
+    G_school    - agents sharing the same school ID (school_id)
+    G_community - random sparse graph rebuilt each evening tick by FluModel
 
 Each node in every graph is the agent's Mesa unique_id (integer).
 Each node stores a reference to the agent object under the key "agent".

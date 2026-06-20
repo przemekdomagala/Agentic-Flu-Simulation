@@ -2,8 +2,7 @@
 FluAgent: A single person in the flu simulation.
 
 Responsibility: Store demographic attributes and drive the SEIR health-state
-machine for one individual.  Routing, transmission, and telemetry are handled
-exclusively by FluModel (Single Responsibility Principle).
+machine for one individual.  Routing, transmission, and telemetry are handled by FluModel.
 
 Dependency Injection: the duration sampler callable is injected at construction
 time so that tests can substitute a deterministic function without touching

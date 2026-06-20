@@ -3,7 +3,7 @@ Unit tests for the transmission mechanics helpers in simulation/transmission.py.
 
 All functions under test are pure (no side effects, no randomness) so every
 test is completely deterministic.  The caller-supplied rng_sample pattern means
-no mocking is required — we simply pass known float values.
+no mocking is required - we simply pass known float values.
 """
 
 from __future__ import annotations

@@ -1,5 +1,5 @@
 """
-Unit tests for DataPreprocessor (Task 1).
+Unit tests for DataPreprocessor.
 
 Tests verify:
 - Cluster integrity: every person has a valid household or GQ ID.

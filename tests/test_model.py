@@ -17,7 +17,7 @@ from simulation.model import FluModel, _is_mobile
 # ── Population factories ──────────────────────────────────────────────────────
 
 def _household_population(n: int = 4, age: int = 30) -> pd.DataFrame:
-    """n workers sharing one household — no students, no GQ."""
+    """n workers sharing one household - no students, no GQ."""
     return pd.DataFrame({
         "sp_id":     [str(i) for i in range(n)],
         "age":       [age] * n,
@@ -30,7 +30,7 @@ def _household_population(n: int = 4, age: int = 30) -> pd.DataFrame:
 
 
 def _student_population(n: int = 4) -> pd.DataFrame:
-    """n students sharing one household — no work, no GQ."""
+    """n students sharing one household - no work, no GQ."""
     return pd.DataFrame({
         "sp_id":     [str(i) for i in range(n)],
         "age":       [15] * n,

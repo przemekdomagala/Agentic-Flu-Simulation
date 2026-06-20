@@ -1,5 +1,5 @@
 """
-Unit tests for TopologyBuilder (Task 3).
+Unit tests for TopologyBuilder.
 
 Tests verify graph integrity:
 - Nodes in each sub-graph correspond to the correct agents.

@@ -39,7 +39,7 @@ This milestone brings the infrastructure to life. The simulation now runs a disc
 
 ### 3.1. Transmission Module (`simulation/transmission.py`)
 
-A new, standalone module encapsulating all transmission mathematics. Decoupling this from the model follows the Single Responsibility Principle and makes every calculation independently testable without instantiating a Mesa model.
+A new, standalone module encapsulating all transmission mathematics. Decoupling this from the model makes every calculation independently testable without instantiating a Mesa model.
 
 **Location multipliers:**
 

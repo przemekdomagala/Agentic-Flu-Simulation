@@ -1,5 +1,5 @@
 """
-Unit tests for FluAgent and FluModel (Task 2).
+Unit tests for FluAgent and FluModel.
 
 Tests verify:
 - FluModel spawns the exact number of agents matching the input DataFrame.

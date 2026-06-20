@@ -34,6 +34,12 @@ _SEIR_COLORS = {
     "Count_I": "#F44336",
     "Count_R": "#4CAF50",
 }
+_SEIR_SUMMARY = [
+    ("Susceptible", "Count_S"),
+    ("Exposed", "Count_E"),
+    ("Infected", "Count_I"),
+    ("Recovered", "Count_R"),
+]
 
 _HOTSPOT_COLS   = ["Infections_Home", "Infections_GQ",    "Infections_Work",
                    "Infections_School", "Infections_Community"]
@@ -99,6 +105,30 @@ def StatusLine(model_ref: solara.Reactive[FluModel]) -> None:
     hour = model.tick % 24
     day  = model.tick // 24 + 1
     solara.Text(f"Tick: {model.tick}   |   Hour: {hour:02d}:00   |   Day: {day}")
+
+
+@solara.component
+def StateSummary(model_ref: solara.Reactive[FluModel]) -> None:
+    """Current totals for each SEIR state."""
+    model = model_ref.value
+    update_counter.get()
+
+    df = model.datacollector.get_model_vars_dataframe()
+    latest = df.iloc[-1] if not df.empty else {}
+
+    with solara.Row(style="flex-wrap: wrap; gap: 12px;"):
+        for label, column in _SEIR_SUMMARY:
+            count = int(latest.get(column, 0))
+            color = _SEIR_COLORS[column]
+            with solara.Card(
+                style=(
+                    "flex: 1 1 140px; "
+                    "border-left: 6px solid "
+                    f"{color};"
+                )
+            ):
+                solara.Text(label, style="font-size: 0.85rem; color: #666;")
+                solara.Text(str(count), style="font-size: 1.8rem; font-weight: 700;")
 
 
 # ── Simulation controls ───────────────────────────────────────────────────────
@@ -176,6 +206,10 @@ def Page() -> None:
                     )
                 with solara.Column(style="flex: 1 1 auto; justify-content: center;"):
                     StatusLine(model_reactive)
+
+        # ── Current state totals ──────────────────────────────────────────────
+        with solara.Card(style="margin-bottom: 12px;"):
+            StateSummary(model_reactive)
 
         # ── Charts row ────────────────────────────────────────────────────────
         with solara.Row(style="flex-wrap: wrap; gap: 16px; align-items: flex-start;"):

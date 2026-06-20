@@ -127,4 +127,3 @@ def Page() -> None:
                 HotspotChart(model_reactive.value)
 
 
-page = Page()

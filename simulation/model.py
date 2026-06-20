@@ -51,11 +51,20 @@ class FluModel(mesa.Model):
         seed: int | None = None,
         beta: float = _BETA,
         initial_infected: int = _INITIAL_INFECTED,
+        compliance_rate: float = _ABSENTEEISM_RATE,
+        school_closure_threshold: float | None = None,
+        gq_lockdown: bool = False,
     ) -> None:
         super().__init__(seed=seed)
 
         self.beta: float = beta
         self.tick: int   = 0
+
+        # Policy parameters
+        self.compliance_rate: float               = compliance_rate
+        self.school_closure_threshold: float | None = school_closure_threshold
+        self.gq_lockdown: bool                    = gq_lockdown
+        self.schools_open: bool                   = True
 
         # Per-tick infection source tallies (reset at the top of each step)
         self._infection_counts: dict[str, int] = {
@@ -63,6 +72,7 @@ class FluModel(mesa.Model):
         }
 
         self._spawn_agents(population)
+        self.num_agents: int = len(list(self.agents))
         self.topology = TopologyBuilder(list(self.agents))
         self._seed_infections(initial_infected)
         self._setup_datacollector()
@@ -78,11 +88,27 @@ class FluModel(mesa.Model):
 
         self._reset_infection_counts()
 
+        # Dynamic school closure: check once per tick until threshold is crossed
+        if self.school_closure_threshold is not None and self.schools_open:
+            active_cases = sum(
+                1 for a in self.agents
+                if a.health_state in (HealthState.EXPOSED, HealthState.INFECTIOUS)
+            )
+            if active_cases / self.num_agents >= self.school_closure_threshold:
+                self.schools_open = False
+                print(f"Tick {self.tick}: Outbreak threshold reached. Schools CLOSED.")
+
         if hour == _ABSENTEEISM_HOUR:
             self._apply_absenteeism()
 
         if hour == _COMMUNITY_HOUR:
-            self.topology.rebuild_community_graph(list(self.agents), self.random)
+            # GQ lockdown: exclude group-quarter residents from community mixing
+            community_agents = (
+                [a for a in self.agents if a.sp_gq_id is None]
+                if self.gq_lockdown
+                else list(self.agents)
+            )
+            self.topology.rebuild_community_graph(community_agents, self.random)
 
         self._run_transmission(hour)
         self.agents.do("step")
@@ -143,21 +169,23 @@ class FluModel(mesa.Model):
     def _apply_absenteeism(self) -> None:
         """At 07:00, flag symptomatic Infectious agents for quarantine.
 
-        70 % of symptomatic agents suspend G_work / G_school routing and
-        stay locked to G_home for the day.  Asymptomatic agents are never
-        flagged (they do not know they are infectious).
+        ``compliance_rate`` % of symptomatic agents suspend G_work / G_school
+        routing and stay locked to G_home for the day.  Asymptomatic agents
+        are never flagged (they do not know they are infectious).
         """
         for agent in self.agents:
             if (
                 agent.health_state is HealthState.INFECTIOUS
                 and not agent.is_asymptomatic
-                and self.random.random() < _ABSENTEEISM_RATE
+                and self.random.random() < self.compliance_rate
             ):
                 agent.is_quarantined = True
 
     def _run_transmission(self, hour: int) -> None:
         """Attempt transmission on every active edge for the current hour."""
         for graph, location in self.topology.active_base_graphs(hour):
+            if location == "school" and not self.schools_open:
+                continue
             for uid_a, uid_b in graph.edges():
                 agent_a: FluAgent = graph.nodes[uid_a]["agent"]
                 agent_b: FluAgent = graph.nodes[uid_b]["agent"]

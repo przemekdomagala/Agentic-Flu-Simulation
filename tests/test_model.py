@@ -120,7 +120,7 @@ def test_evening_hours_activate_community():
 
 
 def test_student_home_edge_inactive_during_work_hours():
-    """During 08:00–16:00, home edges for a student must be skipped."""
+    """During 08:00-16:00, home edges for a student must be skipped."""
     model = FluModel(population=_student_population(2), seed=0, initial_infected=0)
     agents = list(model.agents)
     student_a, student_b = agents[0], agents[1]

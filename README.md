@@ -11,11 +11,11 @@ Built with [Mesa 3](https://mesa.readthedocs.io/) and visualised with [Solara](h
 ```
 Agentic-Flu-Simulation/
 ├── simulation/
-│   ├── agents.py        # FluAgent – SEIR state machine per individual
-│   ├── model.py         # FluModel – simulation clock, transmission, telemetry
-│   ├── topology.py      # TopologyBuilder – five-layer contact network (NetworkX)
+│   ├── agents.py        # FluAgent - SEIR state machine per individual
+│   ├── model.py         # FluModel - simulation clock, transmission, telemetry
+│   ├── topology.py      # TopologyBuilder - five-layer contact network (NetworkX)
 │   ├── transmission.py  # Pure transmission-probability helpers
-│   └── preprocessor.py  # DataPreprocessor – cluster-sample the population dataset
+│   └── preprocessor.py  # DataPreprocessor - cluster-sample the population dataset
 ├── tests/               # pytest test suite
 ├── dataset/             # Raw synthetic population files (people, households, GQ)
 ├── docs/                # Design documentation and implementation reports
@@ -35,23 +35,23 @@ Agentic-Flu-Simulation/
 
 | State | Description |
 |-------|-------------|
-| **S** – Susceptible | Healthy; can be exposed via contact |
-| **E** – Exposed | Infected but not yet infectious (incubation ~48 h, σ = 12 h) |
-| **I** – Infectious | Actively spreading; duration ~168 h (σ = 24 h), +20 % for agents aged 65+ |
-| **R** – Recovered | Permanently immune |
+| **S** - Susceptible | Healthy; can be exposed via contact |
+| **E** - Exposed | Infected but not yet infectious (incubation ~48 h, σ = 12 h) |
+| **I** - Infectious | Actively spreading; duration ~168 h (σ = 24 h), +20 % for agents aged 65+ |
+| **R** - Recovered | Permanently immune |
 
 35 % of infectious agents are asymptomatic and never quarantine.
 
 ### Contact network layers
 
-Transmission is simulated across five network layers with location-specific multipliers applied to the baseline transmissibility `β = 0.04` (calibrated for R₀ ≈ 1.3–1.8):
+Transmission is simulated across five network layers with location-specific multipliers applied to the baseline transmissibility `β = 0.04` (calibrated for R₀ ≈ 1.3-1.8):
 
 | Layer | Multiplier | Active hours |
 |-------|-----------|--------------|
 | Group Quarters (GQ) | 3.5× | 24 h |
 | Household | 2.5× | outside work/school hours |
-| School | 1.8× | 08:00–16:00 |
-| Workplace | 1.0× | 08:00–16:00 |
+| School | 1.8× | 08:00-16:00 |
+| Workplace | 1.0× | 08:00-16:00 |
 | Community | 0.4× | rebuilt daily at 16:00 |
 
 ### Behavioural policies

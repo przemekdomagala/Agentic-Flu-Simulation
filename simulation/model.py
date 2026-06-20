@@ -20,7 +20,7 @@ from simulation.transmission import exposure_occurred
 
 # ── Model-level constants ─────────────────────────────────────────────────────
 
-_BETA: float              = 0.04   # baseline transmissibility (calibrated for R₀ ≈ 1.3–1.8)
+_BETA: float              = 0.04   # baseline transmissibility (calibrated for R₀ ≈ 1.3-1.8)
 _INITIAL_INFECTED: int    = 5
 _ABSENTEEISM_HOUR: int    = 7      # 07:00 compliance check
 _ABSENTEEISM_RATE: float  = 0.70   # 70 % of symptomatic agents quarantine
@@ -204,7 +204,7 @@ class FluModel(mesa.Model):
         """Return False when this edge should be skipped for this tick.
 
         Two rules:
-        1. During work/school hours (08:00–16:00), home edges are inactive for
+        1. During work/school hours (08:00-16:00), home edges are inactive for
            agents who have work or school obligations (they are elsewhere).
         2. Quarantined agents skip all non-home, non-GQ edges.
         """

@@ -77,10 +77,10 @@ Four undirected NetworkX graphs are built eagerly at model initialisation:
 
 | Sub-graph | Clustering attribute | Activation window (Next Milestone) |
 | :--- | :--- | :--- |
-| `G_home` | `sp_hh_id` | 00:00–08:00 and 16:00–24:00 |
-| `G_gq` | `sp_gq_id` | 00:00–24:00 (always active) |
-| `G_work` | `work_id` | 08:00–16:00 |
-| `G_school` | `school_id` | 08:00–16:00 |
+| `G_home` | `sp_hh_id` | 00:00-08:00 and 16:00-24:00 |
+| `G_gq` | `sp_gq_id` | 00:00-24:00 (always active) |
+| `G_work` | `work_id` | 08:00-16:00 |
+| `G_school` | `school_id` | 08:00-16:00 |
 
 Each graph contains all agents as nodes (so degree queries are always valid). Edges are drawn using a complete sub-graph per cluster: every pair of agents sharing the same attribute value receives a direct edge. Agents with `None` for a given attribute have no edges in that sub-graph. Every node stores an `"agent"` attribute holding a direct reference to the `FluAgent` object.
 

@@ -90,9 +90,9 @@ A new, standalone module encapsulating all transmission mathematics. Decoupling 
 
 | Hour range | Active layers |
 | :--- | :--- |
-| 00:00 – 08:00 | `G_home`, `G_gq` |
-| 08:00 – 16:00 | `G_home`*, `G_gq`, `G_work`, `G_school` |
-| 16:00 – 24:00 | `G_home`, `G_gq`, `G_community` |
+| 00:00 - 08:00 | `G_home`, `G_gq` |
+| 08:00 - 16:00 | `G_home`*, `G_gq`, `G_work`, `G_school` |
+| 16:00 - 24:00 | `G_home`, `G_gq`, `G_community` |
 
 \* `G_home` edges are skipped for agents with `work_id` or `school_id` during day hours via `_edge_is_active()`.
 

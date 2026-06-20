@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 # ── Hourly activation schedule ────────────────────────────────────────────────
 # Maps location name → (hour_start_inclusive, hour_end_exclusive).
 # G_home spans the full day at the structural level; FluModel filters it
-# per-agent during 08:00–16:00 for workers and students.
+# per-agent during 08:00-16:00 for workers and students.
 _HOUR_SCHEDULE: dict[str, tuple[int, int]] = {
     "home":      (0,  24),
     "gq":        (0,  24),
@@ -65,10 +65,10 @@ class TopologyBuilder:
         """Return (graph, location_name) pairs that are structurally active at *hour*.
 
         Note: G_home is included for all hours; it is FluModel's responsibility
-        to skip home edges for mobile agents during 08:00–16:00.
+        to skip home edges for mobile agents during 08:00-16:00.
 
         Args:
-            hour: Current hour of day (0–23).
+            hour: Current hour of day (0-23).
 
         Returns:
             Ordered list of (NetworkX graph, location string) tuples.
